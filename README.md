@@ -1,4 +1,6 @@
-<img src="assets/icon.svg" width="64" height="64" alt="Zen Control icon">
+<p align="center">
+  <img src="assets/zen-control-logo.svg" width="96" height="96" alt="Zen Control logo: a glowing spiral of indigo and cyan ribbons">
+</p>
 
 # Zen Control
 
