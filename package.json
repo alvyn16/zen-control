@@ -1,0 +1,45 @@
+{
+  "name": "zenforge",
+  "version": "0.1.0",
+  "description": "An independent MCP harness for Zen Browser: background research, native spaces, evidence and in-browser control.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "zenforge": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && node dist/cli.js",
+    "start": "node dist/cli.js serve",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/run-tests.mjs test/unit",
+    "check": "npm run typecheck && npm run build && npm test"
+  },
+  "keywords": [
+    "zen-browser",
+    "mcp",
+    "model-context-protocol",
+    "browser-automation",
+    "background-research"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "commander": "^14.0.3",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/ws": "^8.18.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
