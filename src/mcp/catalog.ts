@@ -95,6 +95,7 @@ const FULL_TOOLS = [
   "zen_template_apply",
   "zen_template_save",
   "zen_template_delete",
+  "zen_doctor",
 ] as const;
 
 const CATEGORIES: Record<string, ToolCategory> = {
@@ -102,6 +103,7 @@ const CATEGORIES: Record<string, ToolCategory> = {
   zen_launch: "browser",
   zen_config: "browser",
   zen_audit_tail: "browser",
+  zen_doctor: "browser",
   zen_spaces_list: "spaces",
   zen_space_create: "spaces",
   zen_space_switch: "spaces",
@@ -171,6 +173,10 @@ const KEYWORDS: Record<string, readonly string[]> = {
   zen_watch_add: ["monitor", "change", "alert"],
   zen_tools_search: ["discover", "catalog", "capabilities", "help"],
   zen_tools_use: ["invoke", "gateway", "hidden", "publish"],
+  zen_doctor: [
+    "diagnostics", "diagnose", "doctor", "troubleshoot", "recover",
+    "health", "preflight", "debug", "why failed", "repair",
+  ],
 };
 
 export const ALL_TOOL_NAMES: readonly string[] = [

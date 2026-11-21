@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Unit tests / Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run build
+
+      - run: npm test
+
+  live-smoke:
+    name: Live MCP smoke / Node 24
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Download Zen Browser (Linux x86_64)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/zen
+          # The official asset is currently zen.linux-x86_64.tar.xz.
+          gh release download --repo zen-browser/desktop \
+            --pattern '*linux*x86_64*.tar.xz' --dir /tmp/zen --clobber || true
+          if ! compgen -G '/tmp/zen/*.tar.xz' > /dev/null; then
+            echo "gh download failed; falling back to the GitHub API."
+            asset=$(curl -fsSL https://api.github.com/repos/zen-browser/desktop/releases/latest \
+              | grep -oE 'https://[^"]*linux[^"]*x86_64[^"]*\.tar\.xz' | head -n 1)
+            test -n "$asset"
+            curl -fsSL "$asset" -o /tmp/zen/zen-linux-x86_64.tar.xz
+          fi
+          ls -lh /tmp/zen
+
+      - name: Extract Zen Browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=$(find /tmp/zen -maxdepth 1 -name '*.tar.xz' -print -quit)
+          test -n "$archive"
+          echo "Extracting $archive"
+          mkdir -p /tmp/zen/extracted
+          tar -xJf "$archive" -C /tmp/zen/extracted
+
+      - name: Locate Zen executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          zen_bin=$(find /tmp/zen/extracted -type f \( -name 'zen' -o -name 'zen-bin' \) -perm -u+x -print -quit)
+          if [ -z "$zen_bin" ]; then
+            echo "No executable named zen or zen-bin found in the release archive." >&2
+            find /tmp/zen/extracted -maxdepth 3 -type f -print | head -40 >&2
+            exit 1
+          fi
+          echo "Found Zen executable: $zen_bin"
+          echo "ZEN_CONTROL_ZEN_PATH=$zen_bin" >> "$GITHUB_ENV"
+
+      - name: Run live MCP smoke
+        env:
+          ZEN_CONTROL_E2E: "1"
+          ZEN_CONTROL_ZEN_PATH: ${{ env.ZEN_CONTROL_ZEN_PATH }}
+          MOZ_HEADLESS: "1"
+        run: npm run test:live

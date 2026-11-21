@@ -218,7 +218,19 @@ const semanticPage = z.looseObject({
   limitations: z.array(z.string()).optional(),
 });
 
+/** Optional delta-read fields shared by the single and batch read outputs. */
+const deltaFields = {
+  deltaToken: z.string().optional(),
+  changed: z.boolean().optional(),
+  delta: z.object({
+    added: z.string(),
+    removed: z.string(),
+    truncated: z.boolean(),
+  }).optional(),
+};
+
 const pageReadShape = {
+  ...deltaFields,
   title: z.string(),
   url: z.string(),
   text: z.string().optional(),
@@ -558,7 +570,9 @@ export const TOOL_OUTPUT_SCHEMAS: Record<string, z.ZodRawShape | z.ZodType> = {
   /* Reading */
   zen_read_page: pageReadShape,
   zen_read_pages: {
+    ...deltaFields,
     pages: z.array(z.looseObject({
+      ...deltaFields,
       tabId: z.string(),
       ok: z.boolean(),
       title: z.string().optional(),
@@ -719,6 +733,28 @@ export const TOOL_OUTPUT_SCHEMAS: Record<string, z.ZodRawShape | z.ZodType> = {
     watchMinIntervalSeconds: z.number().optional(),
     sessions: z.number().optional(),
     userTemplates: z.number().optional(),
+  },
+  zen_doctor: {
+    ok: z.boolean(),
+    checks: z.array(z.object({
+      name: z.string(),
+      ok: z.boolean(),
+      detail: z.string(),
+      fix: z.string().optional(),
+    })),
+    surface: z.string(),
+    counts: z.object({
+      tools: z.number(),
+      resources: z.number(),
+      prompts: z.number(),
+    }),
+    policy: z.object({
+      readOnly: z.boolean(),
+      auditLog: z.boolean(),
+      requireConsent: z.boolean(),
+      allowedDomains: z.array(z.string()),
+    }),
+    session: sessionInfo.optional(),
   },
   zen_audit_tail: {
     path: z.string().optional(),

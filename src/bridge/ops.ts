@@ -10,6 +10,7 @@
 import type {
   BridgeStatus,
   PageReadResult,
+  PageSignatureResult,
   PageFrame,
   TabInfo,
   SpaceInfo,
@@ -1449,6 +1450,38 @@ export function createOps(win: any, windowId: string): OpsApi {
         result.limitation = result.limitation ? `${result.limitation} ${note}` : note;
       }
       return result;
+    },
+
+    "tabs.readSignature": async (params: any): Promise<PageSignatureResult> => {
+      const tab = requireActionTab(String(params?.tabId ?? ""), "read the signature of");
+      const domains: string[] | undefined = params?.allowedDomains;
+      assertActionUrlAllowed(tabUrl(tab), domains, "reading");
+      // The top document's actor; pageActor reports honest tab_not_loaded and
+      // actor_unavailable codes when background access is not possible.
+      const actor = pageActor(tab);
+      let raw: unknown;
+      try {
+        raw = await execute(actor, pageSignatureScript(), [], SIGNATURE_BEFORE_TIMEOUT_MS);
+      } catch (error) {
+        const err = error as Error & { code?: string };
+        if (err?.code === "actor_unavailable") throw err;
+        throw new OpsError(
+          "unsupported_page",
+          `Could not read the signature of "${tabTitle(tab)}": ${String(err?.message ?? error)}`
+        );
+      }
+      const signature = coercePageSignature(raw);
+      if (!signature) {
+        throw new OpsError("unsupported_page", `The tab "${tabTitle(tab)}" did not return a page signature.`);
+      }
+      return {
+        url: signature.url,
+        title: signature.title,
+        textHash: signature.textHash,
+        textLength: signature.textLength,
+        readyState: signature.readyState,
+        documentId: documentIdForTab(tab),
+      };
     },
 
     "tabs.click": async (params: any): Promise<ClickElementResult> => {

@@ -153,6 +153,9 @@ export const TOOL_DESCRIPTIONS: Record<string, string> = {
   zen_config:
     "Show effective policy and storage: read-only, domain allowlist, audit log, data directory, surface and launch/consent settings. Needs no browser; use it to explain a blocked call.",
 
+  zen_doctor:
+    "Report local diagnostics for recovering from failures: config, Zen executable, bridge bundle, profile and Marionette state, connection, tool counts and policy. Purely local: it never launches a browser, connects to one or reads page content.\n\nEach check has a name, an ok flag, a detail and an optional fix with concrete recovery steps. Details stay redacted: no cookies, credentials or page text are returned. Call it after a tool fails or before zen_launch; it never changes state.",
+
   zen_audit_tail:
     "Show the most recent tool calls from the audit log, including blocked ones. Use it to review what ran and why an action was denied.",
 

@@ -20,6 +20,7 @@
     "start": "node dist/cli.js serve",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/run-tests.mjs test/unit",
+    "test:live": "node scripts/run-tests.mjs test/integration",
     "check": "npm run typecheck && npm run build && npm test"
   },
   "keywords": [

@@ -27,6 +27,7 @@ import {
   type ToolSurface,
 } from "./catalog.js";
 import { TOOL_DESCRIPTIONS } from "./descriptions.js";
+import { agentDoctor } from "./diagnostics.js";
 import { TOOL_OUTPUT_SCHEMAS } from "./output-schemas.js";
 import {
   auditOutcomeForResult,
@@ -98,6 +99,7 @@ const PAUSED_ALLOWED = new Set([
   "zen_answers",
   "zen_config",
   "zen_audit_tail",
+  "zen_doctor",
 ]);
 
 const STRUCTURED_ERROR_TOOLS = new Set(["zen_click", "zen_type"]);
@@ -598,6 +600,25 @@ export function createZenMcpServer(runtime: ZenRuntime, config: AppConfig): McpS
   );
 
   addTool(
+    "zen_doctor",
+    {},
+    { title: "Local diagnostics", annotations: { readOnlyHint: true } },
+    () =>
+      agentDoctor({
+        config,
+        runtime,
+        sessions,
+        templates,
+        guard,
+        counts: {
+          tools: Object.keys(internals._registeredTools).length + hidden.size,
+          resources: Object.keys(internals._registeredResources).length,
+          prompts: Object.keys(internals._registeredPrompts).length,
+        },
+      })
+  );
+
+  addTool(
     "zen_launch",
     {},
     { title: "Launch Zen with agent access", annotations: { readOnlyHint: false } },
@@ -860,9 +881,10 @@ export function createZenMcpServer(runtime: ZenRuntime, config: AppConfig): McpS
       selector: z.string().max(500).optional(),
       maxElements: z.number().int().min(1).max(200).optional(),
       framePath: z.array(z.number().int().min(0)).min(1).max(3).optional(),
+      since: z.string().min(1).max(64).optional(),
     },
     { title: "Read a page", annotations: { readOnlyHint: false } },
-    async ({ tabId, maxChars, offset, format, selector, maxElements, framePath }, { signal, report }) => {
+    async ({ tabId, maxChars, offset, format, selector, maxElements, framePath, since }, { signal, report }) => {
       report.report(1, 2, "reading page");
       const page = await runtime.readPage({
         tabId,
@@ -872,6 +894,7 @@ export function createZenMcpServer(runtime: ZenRuntime, config: AppConfig): McpS
         selector,
         maxElements,
         framePath,
+        since,
         signal,
       });
       report.report(2, 2, "page read");

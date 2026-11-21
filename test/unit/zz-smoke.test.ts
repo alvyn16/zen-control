@@ -57,10 +57,10 @@ test("launcher arg construction", () => {
 
 test("catalog surfaces are nested and complete", () => {
   assert.deepEqual(validateCatalog(), []);
-  assert.equal(ALL_TOOL_NAMES.length, 55);
+  assert.equal(ALL_TOOL_NAMES.length, 56);
   assert.equal(toolsForSurface("research").size, 17);
   assert.equal(toolsForSurface("core").size, 38);
-  assert.equal(toolsForSurface("full").size, 55);
+  assert.equal(toolsForSurface("full").size, 56);
   for (const name of toolsForSurface("research")) {
     assert.ok(toolsForSurface("core").has(name));
     assert.ok(toolsForSurface("full").has(name));

@@ -218,6 +218,14 @@ export interface PageReadResult {
   elementsTotal?: number; snapshotComplete?: boolean; textTruncated?: boolean;
   outlineTruncated?: boolean; framesComplete?: boolean; limitations?: string[];
   framePath?: number[]; frames?: PageFrame[];
+  deltaToken?: string; changed?: boolean;
+  delta?: { added: string; removed: string; truncated: boolean };
+}
+
+/** Lightweight, bounded page state used to decide whether a re-read is needed. */
+export interface PageSignatureResult {
+  url: string; title: string; textHash: number; textLength: number;
+  readyState: string; documentId: string;
 }
 
 /* ------------------------------------------------------------------ *
@@ -463,6 +471,7 @@ export interface BridgeMethodMap {
   "tabs.select": { params: SelectTabParams; result: SelectTabResult };
   "tabs.pin": { params: PinTabsParams; result: PinTabsResult };
   "tabs.read": { params: TabReadParams; result: PageReadResult };
+  "tabs.readSignature": { params: { tabId: string; allowedDomains?: string[] }; result: PageSignatureResult };
   "tabs.click": { params: ClickElementParams; result: ClickElementResult };
   "tabs.type": { params: TypeTextParams; result: TypeTextResult };
   "tabs.waitFor": { params: WaitForParams; result: WaitForResult };

@@ -41,6 +41,7 @@ import type {
   BridgeStatus,
   BridgeToServer,
   EventsResult,
+  PageSignatureResult,
   ServerToBridge,
   UiActivity,
   UiActivityAction,
@@ -902,6 +903,17 @@ export class BridgeHub {
       if (frame.url) this.#assertUrlAllowed(frame.url, "Refusing to return content from frame");
     }
     return page;
+  }
+  readSignature(
+    params: BridgeMethodMap["tabs.readSignature"]["params"],
+    windowId?: string,
+    options: { timeoutMs?: number; signal?: AbortSignal } = {}
+  ): Promise<PageSignatureResult> {
+    return this.request(
+      "tabs.readSignature",
+      { ...params, allowedDomains: this.#allowedDomains },
+      { windowId, timeoutMs: options.timeoutMs, signal: options.signal }
+    );
   }
   async clickElement(
     params: BridgeMethodMap["tabs.click"]["params"],

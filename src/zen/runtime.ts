@@ -66,6 +66,7 @@ import {
 } from "./launcher.js";
 import { MarionetteClient } from "./marionette.js";
 import { readActivePage, readTabPage } from "./page.js";
+import { ReadDeltaStore, diffText } from "./read-deltas.js";
 import {
   checkForUpdate,
   detectPackageManager,
@@ -200,6 +201,8 @@ export interface ReadPageOptions {
   selector?: string;
   maxElements?: number;
   framePath?: number[];
+  /** Opaque token from a previous read; returns only what changed since then. */
+  since?: string;
   signal?: AbortSignal;
 }
 
@@ -529,6 +532,7 @@ export class ZenRuntime {
   readonly #watches = new Map<string, WatchRuntime>();
   #watchReservations = 0;
   readonly #evidenceTargets = new Map<string, EvidenceTarget>();
+  readonly #deltas = new ReadDeltaStore();
 
   constructor(options: RuntimeOptions) {
     this.config = options.config;
@@ -916,12 +920,91 @@ export class ZenRuntime {
 
   async readPage(options: ReadPageOptions = {}): Promise<PageReadResult> {
     await this.connect();
+    const format = options.format ?? "text";
+    const supportsDelta = format === "text" || format === "markdown";
+
+    if (options.since) {
+      if (!supportsDelta || options.offset || options.selector || options.framePath?.length) {
+        throw new BridgeRequestError(
+          "invalid_args",
+          "since only works with a full text or markdown read of one document."
+        );
+      }
+      const baseline = this.#deltas.get(options.since);
+      if (!baseline) {
+        throw new BridgeRequestError(
+          "invalid_args",
+          "The since token is unknown or expired. Do a full read first and pass its deltaToken."
+        );
+      }
+      const tabId = options.tabId ?? baseline.tabId;
+      const signature = await this.hub.readSignature(
+        { tabId },
+        options.windowId,
+        { signal: options.signal }
+      );
+      if (signature.documentId === baseline.documentId &&
+          signature.textHash === baseline.textHash &&
+          signature.textLength === baseline.textLength) {
+        return {
+          title: signature.title,
+          url: signature.url,
+          selectedText: "",
+          text: "",
+          truncated: false,
+          length: signature.textLength,
+          offset: 0,
+          nextOffset: null,
+          description: null,
+          format,
+          changed: false,
+          deltaToken: options.since,
+        };
+      }
+      const page = options.tabId
+        ? await readTabPage(this.hub, tabId, { ...options, tabId, format })
+        : await readActivePage(this.hub, { ...options, format });
+      if (page.url) this.#assertUrlAllowed(page.url, "Refusing to return content from");
+      for (const frame of page.frames ?? []) {
+        if (frame.url) this.#assertUrlAllowed(frame.url, "Refusing to return frame content from");
+      }
+      const delta = diffText(baseline.text, page.text);
+      const token = this.#deltas.create(
+        tabId, page.text, signature.documentId, page.url,
+        { textHash: signature.textHash, textLength: signature.textLength }
+      );
+      return {
+        ...page,
+        text: delta.added,
+        truncated: delta.truncated,
+        nextOffset: null,
+        changed: true,
+        deltaToken: token,
+        delta,
+      };
+    }
+
     const page = options.tabId
       ? await readTabPage(this.hub, options.tabId, options)
       : await readActivePage(this.hub, options);
     if (page.url) this.#assertUrlAllowed(page.url, "Refusing to return content from");
     for (const frame of page.frames ?? []) {
       if (frame.url) this.#assertUrlAllowed(frame.url, "Refusing to return frame content from");
+    }
+    if (supportsDelta && page.text) {
+      const tabId = options.tabId ?? (await this.hub.status(options.windowId)).activeTab?.id ?? "";
+      try {
+        const signature = await this.hub.readSignature(
+          { tabId }, options.windowId, { signal: options.signal }
+        );
+        const token = this.#deltas.create(
+          tabId, page.text, signature.documentId, page.url,
+          { textHash: signature.textHash, textLength: signature.textLength }
+        );
+        return { ...page, deltaToken: token };
+      } catch {
+        // A failed signature probe must not fail the read itself.
+      }
     }
     return page;
   }
