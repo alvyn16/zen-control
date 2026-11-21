@@ -373,7 +373,7 @@ export class ToolGuard {
       if (!this.warned) {
         this.warned = true;
         console.error(
-          `zen-mcp: could not write the audit log at ${this.auditPath}: ${messageOf(error)}`
+          `zen-control: could not write the audit log at ${this.auditPath}: ${messageOf(error)}`
         );
       }
     }

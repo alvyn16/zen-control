@@ -31,7 +31,7 @@ let savedTerm: string | undefined;
 
 function context(extra: Partial<ClientContext> = {}): ClientContext {
   return {
-    command: "zenforge",
+    command: "zen-control",
     home: root,
     platform: "linux",
     env: { ...process.env, XDG_CONFIG_HOME: join(root, "xdg") },
@@ -40,7 +40,7 @@ function context(extra: Partial<ClientContext> = {}): ClientContext {
 }
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "zenforge-onboard-"));
+  root = mkdtempSync(join(tmpdir(), "zen-control-onboard-"));
   mkdirSync(join(root, "xdg"), { recursive: true });
   savedNoColor = process.env.NO_COLOR;
   savedTerm = process.env.TERM;
@@ -81,7 +81,7 @@ describe("client catalog", () => {
   });
 
   it("uses stable server entry constants", () => {
-    assert.equal(SERVER_ENTRY_NAME, "zenforge");
+    assert.equal(SERVER_ENTRY_NAME, "zen-control");
     assert.deepEqual(SERVER_ARGS, ["serve"]);
   });
 
@@ -115,21 +115,21 @@ describe("client catalog", () => {
 });
 
 describe("applying a client", () => {
-  it("creates a new JSON config with the zenforge entry", () => {
+  it("creates a new JSON config with the zen-control entry", () => {
     const result = applyClient("claude-code", context());
     assert.equal(result.status, "ok");
     assert.match(result.message, /created|created/i);
     const parsed = JSON.parse(readFileSync(join(root, ".claude.json"), "utf8")) as Record<string, unknown>;
     const servers = parsed.mcpServers as Record<string, unknown>;
-    assert.deepEqual(servers.zenforge, { command: "zenforge", args: ["serve"] });
+    assert.deepEqual(servers["zen-control"], { command: "zen-control", args: ["serve"] });
   });
 
-  it("preserves unrelated keys and replaces only the zenforge entry", () => {
+  it("preserves unrelated keys and replaces only the zen-control entry", () => {
     writeFileSync(
       join(root, ".claude.json"),
       JSON.stringify({
         theme: "dark",
-        mcpServers: { other: { command: "other" }, zenforge: { command: "old" } },
+        mcpServers: { other: { command: "other" }, "zen-control": { command: "old" } },
       })
     );
     applyClient("claude-code", context());
@@ -137,7 +137,7 @@ describe("applying a client", () => {
     assert.equal(parsed.theme, "dark");
     const servers = parsed.mcpServers as Record<string, unknown>;
     assert.deepEqual(servers.other, { command: "other" });
-    assert.deepEqual(servers.zenforge, { command: "zenforge", args: ["serve"] });
+    assert.deepEqual(servers["zen-control"], { command: "zen-control", args: ["serve"] });
   });
 
   it("preserves comments and trailing commas in JSONC", () => {
@@ -166,7 +166,7 @@ describe("applying a client", () => {
     const parsed = looseJson(text);
     const servers = ((parsed.mcp as Record<string, unknown>).servers) as Record<string, unknown>;
     assert.ok(servers.other);
-    assert.deepEqual(servers.zenforge, { type: "local", command: ["zenforge", "serve"] });
+    assert.deepEqual(servers["zen-control"], { type: "local", command: ["zen-control", "serve"] });
   });
 
   it("writes a TOML table for Codex and keeps other tables", () => {
@@ -180,8 +180,8 @@ describe("applying a client", () => {
     const text = readFileSync(file, "utf8");
     assert.match(text, /model = "o4-mini"/);
     assert.match(text, /\[other\]/);
-    assert.match(text, /\[mcp_servers\.zenforge\]/);
-    assert.match(text, /command = "zenforge"/);
+    assert.match(text, /\[mcp_servers\.zen-control\]/);
+    assert.match(text, /command = "zen-control"/);
     assert.match(text, /args = \["serve"\]/);
   });
 
@@ -194,8 +194,8 @@ describe("applying a client", () => {
     assert.equal(result.status, "ok", result.message);
     const text = readFileSync(file, "utf8");
     assert.match(text, /other:/);
-    assert.match(text, /zenforge:/);
-    assert.match(text, /cmd: "zenforge"/);
+    assert.match(text, /zen-control:/);
+    assert.match(text, /cmd: "zen-control"/);
   });
 
   it("reports unknown clients as failures", () => {
@@ -211,30 +211,30 @@ describe("merge helpers", () => {
       mergeJsonServer(
         JSON.stringify({ keep: 1, mcpServers: { other: { command: "x" } } }),
         "mcpServers",
-        { command: "zenforge", args: ["serve"] }
+        { command: "zen-control", args: ["serve"] }
       )
     ) as Record<string, unknown>;
     assert.equal(merged.keep, 1);
     const servers = merged.mcpServers as Record<string, unknown>;
-    assert.deepEqual(servers.zenforge, { command: "zenforge", args: ["serve"] });
+    assert.deepEqual(servers["zen-control"], { command: "zen-control", args: ["serve"] });
     assert.deepEqual(servers.other, { command: "x" });
   });
 
-  it("creates nested paths and replaces an existing zenforge entry", () => {
+  it("creates nested paths and replaces an existing zen-control entry", () => {
     const created = JSON.parse(mergeJsonServerPath(undefined, ["mcp", "servers"], {
-      command: "zenforge",
+      command: "zen-control",
     })) as Record<string, unknown>;
-    assert.ok(((created.mcp as Record<string, unknown>).servers as Record<string, unknown>).zenforge);
+    assert.ok(((created.mcp as Record<string, unknown>).servers as Record<string, unknown>)["zen-control"]);
 
     const replaced = JSON.parse(
-      mergeJsonServerPath(JSON.stringify({ mcp: { servers: { zenforge: { command: "old" } } } }), ["mcp", "servers"], {
-        command: "zenforge",
+      mergeJsonServerPath(JSON.stringify({ mcp: { servers: { "zen-control": { command: "old" } } } }), ["mcp", "servers"], {
+        command: "zen-control",
         args: ["serve"],
       })
     ) as Record<string, unknown>;
     assert.deepEqual(
-      (((replaced.mcp as Record<string, unknown>).servers as Record<string, unknown>).zenforge),
-      { command: "zenforge", args: ["serve"] }
+      (((replaced.mcp as Record<string, unknown>).servers as Record<string, unknown>)["zen-control"]),
+      { command: "zen-control", args: ["serve"] }
     );
   });
 
@@ -247,25 +247,25 @@ describe("merge helpers", () => {
 
   it("replaces only the target TOML table", () => {
     const next = mergeTomlServer(
-      '# note\n[other]\ncommand = "x"\n\n[mcp_servers.zenforge]\ncommand = "old"\n',
-      "mcp_servers.zenforge",
-      { command: "zenforge", args: ["serve"] }
+      '# note\n[other]\ncommand = "x"\n\n[mcp_servers.zen-control]\ncommand = "old"\n',
+      "mcp_servers.zen-control",
+      { command: "zen-control", args: ["serve"] }
     );
     assert.match(next, /# note/);
     assert.match(next, /\[other\]/);
-    assert.equal(next.match(/\[mcp_servers\.zenforge\]/g)?.length, 1);
-    assert.match(next, /command = "zenforge"/);
+    assert.equal(next.match(/\[mcp_servers\.zen-control\]/g)?.length, 1);
+    assert.match(next, /command = "zen-control"/);
   });
 });
 
 describe("other-client runbook", () => {
   it("includes paths, entry shapes, merge rules, validation and a report", () => {
-    const prompt = agentSetupPrompt("/opt/zenforge/cli.js");
-    assert.match(prompt, /\/opt\/zenforge\/cli\.js/);
-    assert.match(prompt, /zenforge/);
+    const prompt = agentSetupPrompt("/opt/zen-control/cli.js");
+    assert.match(prompt, /\/opt\/zen-control\/cli\.js/);
+    assert.match(prompt, /zen-control/);
     assert.match(prompt, /mcpServers/);
     assert.match(prompt, /context_servers/);
-    assert.match(prompt, /mcp_servers\.zenforge/);
+    assert.match(prompt, /mcp_servers\.zen-control/);
     assert.match(prompt, /Preserve every existing server/);
     assert.match(prompt, /Validation checklist/);
     assert.match(prompt, /Completion report/);

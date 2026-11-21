@@ -167,9 +167,9 @@ export async function pickClients(options: PickerOption[]): Promise<PickerResult
     const count = rows.filter((row) => !row.other && row.selected).length;
     const otherSelected = rows.some((row) => row.other && row.selected);
 
-    lines.push(`  ${theme.bold("ZENFORGE")}  ${theme.dim("onboard")}`);
+    lines.push(`  ${theme.bold("ZEN_CONTROL")}  ${theme.dim("onboard")}`);
     lines.push(`  ${rule}`);
-    lines.push(`  ${theme.dim("Connect ZenForge to the agents you use.")}`);
+    lines.push(`  ${theme.dim("Connect Zen Control to the agents you use.")}`);
     lines.push("");
 
     const scrolling = body.length > bodyHeight;

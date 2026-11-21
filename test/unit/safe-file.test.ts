@@ -26,7 +26,7 @@ import {
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "zenforge-safe-file-"));
+  tempDir = mkdtempSync(join(tmpdir(), "zen-control-safe-file-"));
 });
 
 afterEach(() => {

@@ -12,7 +12,7 @@ import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { SERVER_VERSION } from "../shared/brand.js";
 import { atomicWritePrivate, readFileTextBounded } from "../utils/safe-file.js";
 
-export const PACKAGE_NAME = "zenforge";
+export const PACKAGE_NAME = "zen-control";
 export const REGISTRY_URL = `https://registry.npmjs.org/${encodeURIComponent(PACKAGE_NAME)}/latest`;
 
 export const PACKAGE_MANAGERS = ["npm", "pnpm", "yarn", "bun"] as const;
@@ -113,7 +113,7 @@ export async function checkForUpdate(opts: UpdateCheckOptions = {}): Promise<Upd
       signal: AbortSignal.timeout(opts.timeoutMs ?? 2_000),
       headers: {
         accept: "application/json",
-        "user-agent": `zenforge/${currentVersion}`,
+        "user-agent": `zen-control/${currentVersion}`,
       },
     });
     if (!response.ok) {

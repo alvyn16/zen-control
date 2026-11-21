@@ -309,7 +309,7 @@ describe("updates", () => {
     const read = fn(mod, "readUpdatePromptState");
     const write = fn(mod, "writeUpdatePromptState");
     if (!read || !write) return;
-    const dir = mkdtempSync(join(tmpdir(), "zenforge-update-"));
+    const dir = mkdtempSync(join(tmpdir(), "zen-control-update-"));
     try {
       const file = join(dir, "update.json");
       call(write, file, { promptedVersion: "2.0.0" });
@@ -333,7 +333,7 @@ describe("updates", () => {
     assert.equal(call(isManager, "cursor"), false);
     const built = call(command, "npm") as { command: string; args: string[] };
     assert.ok(built.command);
-    assert.ok(built.args.some((arg) => /zenforge|@spaxe-dev/.test(arg)));
+    assert.ok(built.args.some((arg) => /zen-control|@spaxe-dev/.test(arg)));
   });
 });
 
@@ -388,7 +388,7 @@ describe("launcher", () => {
     assert.equal(call(alive, 0), false);
     assert.equal(call(alive, process.pid), true);
     assert.equal(call(alive, 99_999_999), false);
-    const dir = mkdtempSync(join(tmpdir(), "zenforge-lock-"));
+    const dir = mkdtempSync(join(tmpdir(), "zen-control-lock-"));
     try {
       symlinkSync("localhost:+99999999", join(dir, "lock"));
       assert.equal(call(locked, dir), false);

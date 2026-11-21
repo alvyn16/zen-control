@@ -12,7 +12,7 @@ export interface Logger {
 export function createLogger(scope: string, explicit?: LogLevel): Logger {
   const configured =
     explicit ??
-    (process.env.ZENFORGE_LOG || process.env.ZEN_MCP_LOG || "info").toLowerCase();
+    (process.env.ZEN_CONTROL_LOG || "info").toLowerCase();
   const threshold = LEVELS[configured as LogLevel] ?? LEVELS.info;
   const emit = (level: LogLevel, message: string) => {
     if (LEVELS[level] < threshold) return;

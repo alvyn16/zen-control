@@ -117,7 +117,7 @@ export function findZenExecutable(config: Pick<AppConfig, "zenPath">): string {
   }
   throw new ZenLaunchError(
     "Could not find Zen Browser. Install Zen, or set zenPath / the " +
-      "ZENFORGE_ZEN_PATH environment variable to the zen executable."
+      "ZEN_CONTROL_ZEN_PATH environment variable to the zen executable."
   );
 }
 
@@ -320,11 +320,8 @@ export async function launchZen(options: LaunchOptions): Promise<LaunchResult> {
     env: {
       ...process.env,
       MOZ_REMOTE_ALLOW_SYSTEM_ACCESS: "1",
-      ZENFORGE_LAUNCHED: "1",
-      ZEN_MCP_LAUNCHED: "1",
-      ZENFORGE_LAUNCH_NONCE: nonce,
-      // Compatibility alias read by older/partner components.
-      ZEN_MCP_LAUNCH_NONCE: nonce,
+      ZEN_CONTROL_LAUNCHED: "1",
+      ZEN_CONTROL_LAUNCH_NONCE: nonce,
     },
   });
   child.once("error", (error) => {

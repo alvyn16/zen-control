@@ -1,6 +1,6 @@
-/** Product identity. Independent implementation; MCP wire name kept stable for client compatibility. */
-export const BRAND = "ZenForge";
-export const SERVER_NAME = "zen-mcp";
+/** Product identity for the independent Zen Control implementation. */
+export const BRAND = "Zen Control";
+export const SERVER_NAME = "zen-control";
 export const SERVER_VERSION = "0.1.0";
 export const BRIDGE_PROTOCOL_VERSION = 2;
-export const BRIDGE_RESOURCE_ALIAS = "zenforge-bridge";
+export const BRIDGE_RESOURCE_ALIAS = "zen-control-bridge";

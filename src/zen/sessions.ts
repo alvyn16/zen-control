@@ -614,7 +614,7 @@ export class SessionStore {
     const { sessions, skipped } = sanitizeSessions(parsed.sessions);
     if (skipped > 0 && !this.#warnedInvalid) {
       this.#warnedInvalid = true;
-      process.stderr.write(`zenforge: ignored ${skipped} invalid session entry/entries in ${file}.\n`);
+      process.stderr.write(`zen-control: ignored ${skipped} invalid session entry/entries in ${file}.\n`);
     }
     return { version: 1, sessions };
   }

@@ -6,11 +6,11 @@ import { atomicWritePrivate, readFileTextBounded } from "../utils/safe-file.js";
 const MAX_CLIENT_CONFIG_BYTES = 20 * 1024 * 1024;
 
 /** The key every client registers the server under. */
-export const SERVER_ENTRY_NAME = "zenforge";
+export const SERVER_ENTRY_NAME = "zen-control";
 /** Arguments the client passes to the server command. */
 export const SERVER_ARGS: string[] = ["serve"];
 /** Default command when the caller does not provide one. */
-export const DEFAULT_COMMAND = "zenforge";
+export const DEFAULT_COMMAND = "zen-control";
 
 export type MergeFormat = "json" | "toml" | "text";
 
@@ -489,7 +489,7 @@ export function catalog(context: ClientContext = {}): ClientEntry[] {
   ];
 }
 
-/** Adds or updates the ZenForge server in one client's configuration. */
+/** Adds or updates the Zen Control server in one client's configuration. */
 export function applyClient(id: string, context: ClientContext = {}): ApplyResult {
   const definition = DEFINITIONS.find((item) => item.id === id);
   if (!definition) {
@@ -1070,15 +1070,15 @@ function mergeYamlList(
 function mergeDshPatch(existing: string | undefined, ctx: ResolvedContext): string {
   const lines = splitTextLines(existing);
   const item = [
-    "- id: zenforge",
+    "- id: zen-control",
     "  name: '@deepseek-ai/dsh-mcp-client'",
     "  config:",
-    "    serverName: zenforge",
+    "    serverName: zen-control",
     "    transport: stdio",
     `    command: ${yamlScalar(ctx.command)}`,
     `    args: ${yamlFlowArray(SERVER_ARGS)}`,
   ];
-  const pattern = /^([ \t]*)-[ \t]*id:\s*['"]?zenforge['"]?\s*$/;
+  const pattern = /^([ \t]*)-[ \t]*id:\s*['"]?zen-control['"]?\s*$/;
   const index = lines.findIndex((line) => pattern.test(line));
   if (index < 0) {
     if (lines.length > 0) lines.push("");
@@ -1109,9 +1109,9 @@ function mergeDshPatch(existing: string | undefined, ctx: ResolvedContext): stri
 function mergeCrushrc(existing: string | undefined, ctx: ResolvedContext): string {
   const lines = splitTextLines(existing);
   const command =
-    `mcp add zenforge --command ${shellQuote(ctx.command)}` +
+    `mcp add zen-control --command ${shellQuote(ctx.command)}` +
     ` --args ${SERVER_ARGS.map(shellQuote).join(" ")}`;
-  const index = lines.findIndex((line) => /^\s*mcp\s+add\s+zenforge(?:\s|$)/.test(line));
+  const index = lines.findIndex((line) => /^\s*mcp\s+add\s+zen-control(?:\s|$)/.test(line));
   if (index >= 0) {
     lines[index] = command;
   } else {
@@ -1157,9 +1157,9 @@ export function agentSetupPrompt(command = DEFAULT_COMMAND): string {
   }).join("\n");
 
   return [
-    "# Set up ZenForge in this agent",
+    "# Set up Zen Control in this agent",
     "",
-    "Add a local stdio MCP server named `zenforge` to the client you are running in.",
+    "Add a local stdio MCP server named `zen-control` to the client you are running in.",
     "Do the work yourself: run commands and edit configuration files. Do not ask",
     "me to run anything. Only ask me when a browser approval card appears or when",
     "no configuration file can be located.",
@@ -1172,15 +1172,15 @@ export function agentSetupPrompt(command = DEFAULT_COMMAND): string {
     `- Arguments: ${JSON.stringify(SERVER_ARGS)}`,
     "- Environment: none required",
     "",
-    "Resolve the command with `command -v zenforge` (macOS/Linux) or",
-    "`where zenforge` (Windows). If it is not on PATH, use the absolute path to",
+    "Resolve the command with `command -v zen-control` (macOS/Linux) or",
+    "`where zen-control` (Windows). If it is not on PATH, use the absolute path to",
     "the built CLI and keep the arguments unchanged.",
     "",
     "## 1. Prefer the client's own add command",
     "",
     "If the client can register a stdio server, use it, for example:",
     "",
-    `    zenforge onboard --clients <id>`,
+    `    zen-control onboard --clients <id>`,
     `    # or, generically:`,
     `    mcp add ${SERVER_ENTRY_NAME} -- "${command}" serve`,
     "",
@@ -1249,12 +1249,12 @@ export function agentSetupPrompt(command = DEFAULT_COMMAND): string {
     "Reply with the client name, the file or command you changed, the validation",
     "result, and the reload step. End with:",
     "",
-    `    ZenForge setup: server ${SERVER_ENTRY_NAME} (stdio) registered;`,
+    `    Zen Control setup: server ${SERVER_ENTRY_NAME} (stdio) registered;`,
     "    config validated; restart the client to load the server.",
     "",
     "## Constraints",
     "",
-    "- ZenForge runs locally over stdio. Do not add a remote URL, token or OAuth flow.",
+    "- Zen Control runs locally over stdio. Do not add a remote URL, token or OAuth flow.",
     "- Do not install or patch anything inside Zen; the bridge is injected at runtime.",
     "- Do not launch a browser merely to test the server. On the first browser tool",
     '  call, Zen shows an approval card. Ask me to click "Allow this session".',

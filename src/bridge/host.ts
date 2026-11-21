@@ -243,7 +243,7 @@ function sleep(ms: number): Promise<void> {
 
 export function resolveBridgeScriptPath(): string {
   const candidates: string[] = [];
-  const override = process.env.ZENFORGE_BRIDGE_SCRIPT ?? process.env.ZEN_MCP_BRIDGE_SCRIPT;
+  const override = process.env.ZEN_CONTROL_BRIDGE_SCRIPT;
   if (override) candidates.push(override);
   try {
     candidates.push(fileURLToPath(new URL("./bridge.js", import.meta.url)));
@@ -299,7 +299,7 @@ export class BridgeHub {
   #filteredEvents = 0;
   #activeBanner: UiBanner = {
     state: "active",
-    text: "ZenForge is controlling this window",
+    text: "Zen Control is controlling this window",
     detail: "Press Pause to block every read and change immediately.",
   };
 
@@ -503,7 +503,7 @@ export class BridgeHub {
           this.#onConsentResult(String(message.id ?? ""), message.granted === true);
           return;
         case "ui.bannerAction":
-          if (message.action === "pause") this.pause("The user paused ZenForge from the browser banner.");
+          if (message.action === "pause") this.pause("The user paused Zen Control from the browser banner.");
           else if (message.action === "resume") this.resume();
           return;
         case "ui.updateAction":
@@ -590,7 +590,7 @@ export class BridgeHub {
     const chosen = this.#primaryConnection();
     if (!chosen) {
       throw new BridgeUnavailableError(
-        "No Zen window is connected to ZenForge. Launch Zen through the harness so the bridge can attach."
+        "No Zen window is connected to Zen Control. Launch Zen through the harness so the bridge can attach."
       );
     }
     return chosen;
@@ -614,7 +614,7 @@ export class BridgeHub {
       throw new BridgeRequestError("consent_required", "Browser access has not been approved yet. Approve the card in Zen.");
     }
     if (this.#paused) {
-      throw new BridgeRequestError("paused", "The user paused ZenForge in the browser. No reads or changes are allowed until Resume.");
+      throw new BridgeRequestError("paused", "The user paused Zen Control in the browser. No reads or changes are allowed until Resume.");
     }
   }
 
@@ -640,7 +640,7 @@ export class BridgeHub {
   #pausedBanner(): UiBanner {
     return {
       state: "paused",
-      text: "ZenForge is paused",
+      text: "Zen Control is paused",
       detail: "The agent cannot read or change pages. Press Resume to allow it again.",
     };
   }
@@ -672,7 +672,7 @@ export class BridgeHub {
       this.#consent = { consent: options.consent, state: "pending" };
       this.#setBanner({
         state: "pending",
-        text: "ZenForge is waiting for your approval",
+        text: "Zen Control is waiting for your approval",
         detail: "Approve the card before any page is read or changed.",
       });
     }
@@ -697,7 +697,7 @@ export class BridgeHub {
     this.#broadcast({ type: "ui.consentCancel", id });
     this.#setBanner(
       granted ? (this.#paused ? this.#pausedBanner() : this.#activeBanner) : {
-        state: "pending", text: "Access declined", detail: "ZenForge is closing this browser.",
+        state: "pending", text: "Access declined", detail: "Zen Control is closing this browser.",
       }
     );
     const waiters = [...this.#consentWaiters];
@@ -761,7 +761,7 @@ export class BridgeHub {
         status: "deferred",
         questionId: entry.question.id,
         waitedSeconds: Math.round((Date.now() - entry.askedAt) / 1_000),
-        message: `The user paused ZenForge, so the question was put aside. ${reason}`,
+        message: `The user paused Zen Control, so the question was put aside. ${reason}`,
       });
     }
   }
@@ -772,7 +772,7 @@ export class BridgeHub {
     this.#pausedAt = Date.now();
     this.#events.setPaused(true);
     this.#setBanner(this.#pausedBanner());
-    const message = "The user paused ZenForge in the browser. No reads or changes are allowed until Resume.";
+    const message = "The user paused Zen Control in the browser. No reads or changes are allowed until Resume.";
     for (const pending of this.#pendingRequests.values()) {
       pending.reject(new BridgeRequestError("paused", message));
       pending.cleanup();
@@ -1005,7 +1005,7 @@ export class BridgeHub {
       return { status: "unavailable", questionId: "", message: "Browser access has not been approved yet." };
     }
     if (this.#paused) {
-      return { status: "unavailable", questionId: "", message: "ZenForge is paused; the question was not shown." };
+      return { status: "unavailable", questionId: "", message: "Zen Control is paused; the question was not shown." };
     }
     let connection: Connection;
     try {
@@ -1364,14 +1364,14 @@ export class BridgeHub {
     this.#stopRequestedAt = null;
 
     for (const pending of this.#pendingRequests.values()) {
-      pending.reject(new BridgeUnavailableError("ZenForge is shutting down"));
+      pending.reject(new BridgeUnavailableError("Zen Control is shutting down"));
       pending.cleanup();
     }
     this.#pendingRequests.clear();
     for (const entry of this.#pendingQuestions.values()) {
       if (entry.timer) clearTimeout(entry.timer);
       entry.timer = null;
-      entry.resolve?.({ status: "unavailable", questionId: entry.question.id, message: "ZenForge stopped before the question was answered." });
+      entry.resolve?.({ status: "unavailable", questionId: entry.question.id, message: "Zen Control stopped before the question was answered." });
       entry.resolve = null;
     }
     const consentWaiters = [...this.#consentWaiters];
@@ -1457,7 +1457,7 @@ while (enumerator.hasMoreElements()) {
 }
 results.windows = windows.length;
 if (windows.length === 0 && privateWindows > 0) {
-  results.errors.push("ZenForge never attaches to private browsing windows. Open a normal window first.");
+  results.errors.push("Zen Control never attaches to private browsing windows. Open a normal window first.");
 }
 let resourceReady = false;
 for (const target of windows) {

@@ -14,7 +14,7 @@ import { EventLog } from "../../src/bridge/event-log.js";
 import { ToolGuard, redactUrlForAudit } from "../../src/mcp/guard.js";
 
 test("foundation identity and config defaults", () => {
-  assert.equal(BRAND, "ZenForge");
+  assert.equal(BRAND, "Zen Control");
   assert.ok(SERVER_VERSION);
   assert.equal(BRIDGE_PROTOCOL_VERSION, 2);
   assert.equal(DEFAULT_CONFIG.toolSurface, "research");

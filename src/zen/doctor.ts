@@ -34,8 +34,7 @@ export interface DoctorOptions {
 }
 
 function bridgeCandidates(): string[] {
-  const override =
-    process.env.ZENFORGE_BRIDGE_SCRIPT ?? process.env.ZEN_MCP_BRIDGE_SCRIPT;
+  const override = process.env.ZEN_CONTROL_BRIDGE_SCRIPT;
   const paths = [join(process.cwd(), "dist", "bridge.js")];
   const configDir = dirname(configFilePath());
   paths.push(resolve(configDir, "..", "dist", "bridge.js"));
@@ -71,7 +70,7 @@ export async function runDoctor(
       name: "Zen executable",
       status: "fail",
       detail: (error as Error).message,
-      hint: "Set zenPath in the config or point ZENFORGE_ZEN_PATH at the executable.",
+      hint: "Set zenPath in the config or point ZEN_CONTROL_ZEN_PATH at the executable.",
     });
   }
 
@@ -142,7 +141,7 @@ export async function runDoctor(
   if (config.allowedDomains.length === 0) permissive.push("the domain allowlist is empty");
   if (!config.auditLog) permissive.push("the audit log is off");
   if (config.launchArgs.length > 0) permissive.push("extra launch arguments are set");
-  if (process.env.ZENFORGE_BRIDGE_SCRIPT || process.env.ZEN_MCP_BRIDGE_SCRIPT) {
+  if (process.env.ZEN_CONTROL_BRIDGE_SCRIPT) {
     permissive.push("a bridge script override is set");
   }
   checks.push({

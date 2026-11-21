@@ -425,7 +425,7 @@ export function createZenMcpServer(runtime: ZenRuntime, config: AppConfig): McpS
       name: SERVER_NAME,
       version: SERVER_VERSION,
       title: BRAND,
-      websiteUrl: "https://github.com/spaxe-dev/zen-mcp",
+      websiteUrl: "https://github.com/alvyn16/zen-control",
     },
     {
       instructions: serverInstructions(config.toolSurface),
@@ -1205,7 +1205,7 @@ export function createZenMcpServer(runtime: ZenRuntime, config: AppConfig): McpS
     { title: "Show agent progress in Zen", annotations: { readOnlyHint: false } },
     ({ title, step, detail, progress, tone, stoppable, done }) =>
       runtime.progress({
-        title: title ?? "ZenForge progress",
+        title: title ?? "Zen Control progress",
         step,
         detail,
         progress,

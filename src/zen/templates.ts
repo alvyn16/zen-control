@@ -508,7 +508,7 @@ export class TemplateStore {
     const { templates, skipped } = sanitizeTemplates(parsed.templates);
     if (skipped > 0 && !this.#warnedInvalid) {
       this.#warnedInvalid = true;
-      process.stderr.write(`zenforge: ignored ${skipped} invalid template entry/entries in ${file}.\n`);
+      process.stderr.write(`zen-control: ignored ${skipped} invalid template entry/entries in ${file}.\n`);
     }
     return { version: 1, templates };
   }

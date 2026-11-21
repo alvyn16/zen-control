@@ -49,7 +49,7 @@ type ConfigKey = (typeof CONFIG_KEYS)[number];
 const program = new Command();
 
 program
-  .name("zenforge")
+  .name("zen-control")
   .description(
     `${BRAND}: an independent MCP harness for Zen Browser. Own a dedicated ` +
       "browser, research tabs in the background, read pages, and control the " +
@@ -64,7 +64,7 @@ program
 
 program
   .command("launch")
-  .description("Launch a Zen window owned by ZenForge, verify lockdown, then quit.")
+  .description("Launch a Zen window owned by Zen Control, verify lockdown, then quit.")
   .action(() => launch());
 
 program
@@ -79,7 +79,7 @@ program
 
 program
   .command("update")
-  .description("Check npm for a newer ZenForge release and install it.")
+  .description("Check npm for a newer Zen Control release and install it.")
   .option("--check", "Report installed and latest versions without installing.")
   .option("--manager <name>", "Package manager: npm, pnpm, yarn or bun.")
   .action((options: UpdateOptions) => update(options));
@@ -110,12 +110,12 @@ program
 
 program
   .command("onboard")
-  .description("Pick MCP clients and add ZenForge to their configuration.")
+  .description("Pick MCP clients and add Zen Control to their configuration.")
   .option(
     "--clients <ids>",
     "Comma-separated client ids, 'all' or 'other'. Skips the interactive picker."
   )
-  .option("--command <command>", "Command clients should run. Defaults to `zenforge`.")
+  .option("--command <command>", "Command clients should run. Defaults to `zen-control`.")
   .option("--other", "Also print a setup prompt for any other client.")
   .addHelpText("after", `\nClient ids: ${clientIds().join(", ")}, other.`)
   .action((options: OnboardOptions) => onboard(options));
@@ -217,7 +217,7 @@ async function launch(): Promise<void> {
   try {
     await runtime.start();
     console.log(
-      "Starting a Zen window owned by ZenForge. If an approval card appears, " +
+      "Starting a Zen window owned by Zen Control. If an approval card appears, " +
         "click Allow to let the agent connect."
     );
     const connection: unknown = await runtime.connect({ allowLaunch: true });
@@ -243,7 +243,7 @@ async function launch(): Promise<void> {
         `${asNumber(statusRecord?.folderCount) ?? 0} folder(s).`
     );
     console.log(
-      "This is a one-shot check: ZenForge quits the browser it started on exit. " +
+      "This is a one-shot check: Zen Control quits the browser it started on exit. " +
         "The MCP server keeps its browser open for the session."
     );
     if (asRecord(connection)?.launched === false) {
@@ -317,7 +317,7 @@ async function status(): Promise<void> {
           port: config.marionettePort,
           acceptingConnections: portOpen,
           note:
-            "An open port means another process owns Marionette. ZenForge only " +
+            "An open port means another process owns Marionette. Zen Control only " +
             "controls a browser it launched and closes the port after startup.",
         },
         consent: {
@@ -348,7 +348,7 @@ async function update(options: UpdateOptions): Promise<void> {
   const info: UpdateInfoLike = await checkForUpdate({ timeoutMs: 5_000 });
   if (!info.latestVersion) {
     console.error(`Could not check for updates: ${info.error ?? "unknown error"}.`);
-    console.error("Install manually: npm install -g zenforge@latest");
+    console.error("Install manually: npm install -g zen-control@latest");
     process.exitCode = 1;
     return;
   }
@@ -358,7 +358,7 @@ async function update(options: UpdateOptions): Promise<void> {
   }
   console.log(`Update available: ${info.currentVersion} -> ${info.latestVersion}`);
   if (options.check) {
-    console.log("Run `zenforge update` to install it.");
+    console.log("Run `zen-control update` to install it.");
     return;
   }
 
@@ -388,7 +388,7 @@ async function update(options: UpdateOptions): Promise<void> {
     return;
   }
   console.log(
-    "Installed. Restart any MCP client that runs `zenforge serve` to load the " +
+    "Installed. Restart any MCP client that runs `zen-control serve` to load the " +
       "new version."
   );
 }
@@ -436,7 +436,7 @@ async function setup(options: SetupOptions): Promise<void> {
     JSON.stringify(
       {
         mcpServers: {
-          zenforge: { command: "zenforge", args: ["serve"] },
+          "zen-control": { command: "zen-control", args: ["serve"] },
         },
       },
       null,
@@ -444,14 +444,14 @@ async function setup(options: SetupOptions): Promise<void> {
     )
   );
   console.log(
-    "\nIf `zenforge` is not on your PATH, point command at the absolute path " +
+    "\nIf `zen-control` is not on your PATH, point command at the absolute path " +
       'of dist/cli.js and keep args as ["serve"].'
   );
-  console.log("Run `zenforge onboard` to add ZenForge to a supported MCP client.");
+  console.log("Run `zen-control onboard` to add Zen Control to a supported MCP client.");
 }
 
 async function onboard(options: OnboardOptions): Promise<void> {
-  const context = { command: options.command?.trim() || "zenforge" };
+  const context = { command: options.command?.trim() || "zen-control" };
   const theme = createTheme(process.stdout);
   const rule = theme.unicode ? "─".repeat(52) : "-".repeat(52);
   const entries = catalog(context);
@@ -482,7 +482,7 @@ async function onboard(options: OnboardOptions): Promise<void> {
     if (!process.stdin.isTTY || !process.stdout.isTTY) {
       console.error("The client picker needs an interactive terminal.");
       console.error("Use --clients with a comma-separated list instead:");
-      console.error("  zenforge onboard --clients claude-code,cursor,other");
+      console.error("  zen-control onboard --clients claude-code,cursor,other");
       console.error(`Valid clients: ${[...known].join(", ")}, other.`);
       process.exitCode = 1;
       return;
@@ -572,7 +572,7 @@ async function onboard(options: OnboardOptions): Promise<void> {
   if (!options.command) {
     console.log(
       theme.dim(
-        "  If `zenforge` is not on your PATH, rerun with " +
+        "  If `zen-control` is not on your PATH, rerun with " +
           "--command <absolute path to dist/cli.js>."
       )
     );
@@ -706,7 +706,7 @@ function printReport(report: DoctorReportLike, update?: UpdateInfoLike): void {
         `[warn] Update: ${update.latestVersion} is available ` +
           `(installed ${update.currentVersion}).`
       );
-      console.log("       Run `zenforge update` to install it.");
+      console.log("       Run `zen-control update` to install it.");
     } else {
       console.log(`[ ok ] Update: ${update.currentVersion} is the latest release.`);
     }
@@ -716,7 +716,7 @@ function printReport(report: DoctorReportLike, update?: UpdateInfoLike): void {
     report.ok
       ? "Ready to launch: the MCP server will start its own Zen window and ask " +
           "for approval in the browser the first time a tool needs it. Run " +
-          "`zenforge launch` for a one-shot live check."
+          "`zen-control launch` for a one-shot live check."
       : "Not ready: fix the failed checks above."
   );
 }

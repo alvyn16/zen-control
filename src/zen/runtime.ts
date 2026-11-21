@@ -685,7 +685,7 @@ export class ZenRuntime {
           '    ? Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment)',
           "    : null;",
           "if (!env) throw new Error('Chrome scope is unavailable for the nonce check');",
-          'return env.get("ZENFORGE_LAUNCH_NONCE") || env.get("ZEN_MCP_LAUNCH_NONCE") || null;',
+          'return env.get("ZEN_CONTROL_LAUNCH_NONCE") || null;',
         ].join("\n"),
         { timeoutMs: 10_000 }
       );
@@ -807,7 +807,7 @@ export class ZenRuntime {
   }
 
   async checkForUpdates(options: { statePath?: string } = {}): Promise<void> {
-    if (process.env.ZENFORGE_NO_UPDATE_CHECK === "1" || process.env.ZEN_MCP_NO_UPDATE_CHECK === "1") {
+    if (process.env.ZEN_CONTROL_NO_UPDATE_CHECK === "1") {
       return;
     }
     let info: UpdateInfo;

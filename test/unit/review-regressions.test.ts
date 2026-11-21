@@ -94,15 +94,15 @@ test("single-page reads route through hub.readTab so the hub injects its allowli
 test("malformed allowedDomains in the config file fails closed", () => {
   const dir = mkdtempSync(join(tmpdir(), "zf-cfg-"));
   const path = join(dir, "config.json");
-  const previous = process.env.ZENFORGE_CONFIG;
+  const previous = process.env.ZEN_CONTROL_CONFIG;
   try {
     writeFileSync(path, JSON.stringify({ allowedDomains: "example.com" }));
-    process.env.ZENFORGE_CONFIG = path;
+    process.env.ZEN_CONTROL_CONFIG = path;
     assert.throws(() => loadConfig(), /allowedDomains/);
     writeFileSync(path, JSON.stringify({ allowedDomains: ["example.com", 7] }));
     assert.throws(() => loadConfig(), /allowedDomains/);
   } finally {
-    if (previous === undefined) delete process.env.ZENFORGE_CONFIG;
-    else process.env.ZENFORGE_CONFIG = previous;
+    if (previous === undefined) delete process.env.ZEN_CONTROL_CONFIG;
+    else process.env.ZEN_CONTROL_CONFIG = previous;
   }
 });

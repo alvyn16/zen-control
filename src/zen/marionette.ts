@@ -120,13 +120,11 @@ export class MarionetteClient {
   constructor(options: MarionetteClientOptions = {}) {
     this.host =
       options.host ??
-      process.env.ZENFORGE_MARIONETTE_HOST ??
-      process.env.ZEN_MCP_MARIONETTE_HOST ??
+      process.env.ZEN_CONTROL_MARIONETTE_HOST ??
       DEFAULT_HOST;
     const portValue =
       options.port ??
-      process.env.ZENFORGE_MARIONETTE_PORT ??
-      process.env.ZEN_MCP_MARIONETTE_PORT ??
+      process.env.ZEN_CONTROL_MARIONETTE_PORT ??
       DEFAULT_PORT;
     this.port = Number(portValue) || DEFAULT_PORT;
     this.#connectTimeoutMs = options.connectTimeoutMs ?? 8_000;

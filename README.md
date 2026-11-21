@@ -1,8 +1,8 @@
-<img src="assets/icon.svg" width="64" height="64" alt="ZenForge icon">
+<img src="assets/icon.svg" width="64" height="64" alt="Zen Control icon">
 
-# ZenForge
+# Zen Control
 
-ZenForge is a **Model Context Protocol (MCP) server** that gives an AI agent
+Zen Control is a **Model Context Protocol (MCP) server** that gives an AI agent
 controlled access to a real [Zen Browser](https://zen-browser.app/) window
 (Zen is a Firefox fork). It starts and *owns* a browser with a debug port,
 proves that the browser answering on that port is the one it launched, closes
@@ -11,15 +11,15 @@ browser's privileged scope. On top of that bridge it exposes a typed MCP tool
 surface for background research, page reads, tab/spaces operations, evidence
 highlights, and in-browser questions.
 
-> **Independent codebase.** ZenForge is an original implementation written by
+> **Independent codebase.** Zen Control is an original implementation written by
 > studying the *design and behavior* of the upstream `zen-mcp` project. No
-> upstream source code was copied. It is a separate project with its own
-> branding and its own architecture, though it keeps a stable MCP wire name so
-> existing MCP clients continue to work.
+> upstream source code was copied. It is a separate project with its own name,
+> branding, package, CLI, configuration paths and architecture.
+> Repository: https://github.com/alvyn16/zen-control
 
 ## What makes it different
 
-- **Owned browser, never attached.** ZenForge launches its own Zen process with
+- **Owned browser, never attached.** Zen Control launches its own Zen process with
   a launch nonce, verifies the nonce inside the browser, then locks the debug
   port. It never takes over a browser you are using.
 - **Background first.** Reads happen through Zen's content actor, so the agent
@@ -53,17 +53,17 @@ node dist/cli.js setup
 node dist/cli.js serve
 ```
 
-Or install the built package and use the `zenforge` binary:
+Or install the built package and use the `zen-control` binary:
 
 ```bash
-npm install -g zenforge
-zenforge setup
+npm install -g zen-control
+zen-control setup
 ```
 
 ## CLI
 
 ```
-zenforge [command]
+zen-control [command]
 
 Commands:
   serve       Run the MCP server over stdio (the default command)
@@ -72,7 +72,7 @@ Commands:
   doctor      Check the Zen install, config, profile and Marionette port
   update      Check npm for a newer release and install it
   setup       Detect Zen, write a config file, print a client snippet
-  onboard     Add ZenForge to MCP client configurations
+  onboard     Add Zen Control to MCP client configurations
   config show Print the config path and resolved values
   config set  Set one configuration key
 ```
@@ -85,7 +85,7 @@ Useful flags:
 - `onboard --clients claude-code,cursor,other` skips the interactive picker;
   `--command <path>` overrides the client command.
 
-`serve` is the default action, so `zenforge` with no arguments starts the
+`serve` is the default action, so `zen-control` with no arguments starts the
 server. All diagnostics are written to **stderr**; stdout is reserved for the
 MCP JSON-RPC transport.
 
@@ -97,26 +97,26 @@ onboarding catalog:
 ```json
 {
   "mcpServers": {
-    "zenforge": {
-      "command": "zenforge",
+    "zen-control": {
+      "command": "zen-control",
       "args": ["serve"]
     }
   }
 }
 ```
 
-Use `zenforge onboard` to write the entry into a supported client. The catalog
+Use `zen-control onboard` to write the entry into a supported client. The catalog
 covers 28 clients, including Claude Code/Desktop, Cursor, VS Code, Codex,
 Gemini CLI, Windsurf, Cline, Zed, OpenCode, oh-my-pi, DeepSeek Harness, ZCode,
 Roo Code, Kilo Code, Continue, Amp, Crush, Qwen Code, Kiro, Warp, Copilot CLI,
 Factory Droid, Amazon Q, Goose, LM Studio, Junie and Pi. JSON, JSONC, TOML and
 YAML/shell configurations are merged in place: existing servers, comments and
-trailing commas are preserved, and only the `zenforge` entry is replaced.
+trailing commas are preserved, and only the `zen-control` entry is replaced.
 For anything else, `onboard --other` prints a paste-ready setup runbook with
 config paths, entry shapes, merge rules, a validation checklist and a
 completion report.
 
-If `zenforge` is not on your PATH, use the absolute path to `dist/cli.js` as
+If `zen-control` is not on your PATH, use the absolute path to `dist/cli.js` as
 the command and keep `args` as `["serve"]`.
 
 ## First-use consent
@@ -128,7 +128,7 @@ an approval card in the browser chrome. Nothing connects until you click
 with:
 
 ```bash
-zenforge launch
+zen-control launch
 ```
 
 That command launches a temporary owned browser, performs the one-shot
@@ -199,12 +199,12 @@ Key modules:
 
 ## Configuration
 
-The config file lives at `%APPDATA%/zenforge/config.json` on Windows,
-`~/Library/Application Support/zenforge/config.json` on macOS, and
-`$XDG_CONFIG_HOME/zenforge/config.json` (or `~/.config/zenforge/config.json`)
-elsewhere. `ZENFORGE_CONFIG` overrides the path. `ZENFORGE_*` environment
-variables override file values. Run `zenforge config show` to see the
-resolved values and `zenforge config set <key> <value>` to change one key.
+The config file lives at `%APPDATA%/zen-control/config.json` on Windows,
+`~/Library/Application Support/zen-control/config.json` on macOS, and
+`$XDG_CONFIG_HOME/zen-control/config.json` (or `~/.config/zen-control/config.json`)
+elsewhere. `ZEN_CONTROL_CONFIG` overrides the path. `ZEN_CONTROL_*` environment
+variables override file values. Run `zen-control config show` to see the
+resolved values and `zen-control config set <key> <value>` to change one key.
 
 ## Development and tests
 

@@ -1,11 +1,11 @@
-# Understanding Zen MCP — a reimplementation-oriented study
+# Upstream research notes — Zen MCP design study
 
 > This is a **behavioral/architectural analysis**, written in my own words, of the
 > upstream project at `https://github.com/spaxe-dev/zen-mcp` (v0.6.0, commit
-> `ba3cf13`). Its purpose is to understand *what the system does and why* so we
-> can design and build our own version. It deliberately avoids reproducing the
-> upstream source; where implementation detail matters, it is described as an
-> algorithm/contract, not pasted.
+> `ba3cf13`). Its purpose was to understand *what the system does and why* so we
+> could design and build Zen Control independently. It deliberately avoids
+> reproducing the upstream source; where implementation detail matters, it is
+> described as an algorithm/contract, not pasted.
 
 ---
 

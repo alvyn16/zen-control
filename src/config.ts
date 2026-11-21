@@ -44,7 +44,7 @@ export const DEFAULT_CONFIG: AppConfig = {
 };
 
 function env(name: string): string | undefined {
-  return process.env[`ZENFORGE_${name}`] ?? process.env[`ZEN_MCP_${name}`];
+  return process.env[`ZEN_CONTROL_${name}`];
 }
 
 export function configFilePath(): string {
@@ -53,7 +53,7 @@ export function configFilePath(): string {
   const base =
     process.env.APPDATA ??
     (process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : join(homedir(), ".config"));
-  return join(base, "zenforge", "config.json");
+  return join(base, "zen-control", "config.json");
 }
 
 export function dataDirPath(): string {
