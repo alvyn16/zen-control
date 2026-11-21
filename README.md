@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/zen-control-logo.svg" width="96" height="96" alt="Zen Control logo: a simple coral spiral in Zen Browser's paper and charcoal palette">
+  <img src="assets/zen-control-logo.svg" width="96" height="96" alt="Zen Control logo: a full multi-coil coral spiral in Zen Browser's paper and charcoal palette">
 </p>
 
 # Zen Control
