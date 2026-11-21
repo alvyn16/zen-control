@@ -13,11 +13,6 @@ browser's privileged scope. On top of that bridge it exposes a typed MCP tool
 surface for background research, page reads, tab/spaces operations, evidence
 highlights, and in-browser questions.
 
-> **Independent codebase.** Zen Control is an original implementation written by
-> studying the *design and behavior* of the upstream `zen-mcp` project. No
-> upstream source code was copied. It is a separate project with its own name,
-> branding, package, CLI, configuration paths and architecture.
-> Repository: https://github.com/alvyn16/zen-control
 
 ## What makes it different
 
